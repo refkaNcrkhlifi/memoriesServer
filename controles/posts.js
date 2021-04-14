@@ -21,11 +21,22 @@ export const addPost = async (req, res) => {
     }
 }
 export const updatePost = async (req, res) => {
-    const { id: _id } = req.body
+    const { id } = req.params
     const post = req.body
-    if (!mongoose.Type.ObjectiId.isValide(_id)) return res.status(404).send("no post with that id")
-    const updatedPost = await postMessage.findByIdAndUpdate(_id, post, { new: true })
+    const options = {
+        upsert: true,
+        new: true,
+        setDefaultsOnInsert: true,
+        useFindAndModify: false,
+    };
+    if (!mongoose.Types.ObjectId.isValid(id)) return res.status(404).send("no post with that id")
+    try {
+        const updatedPost = await postMessage.findByIdAndUpdate(id, post, options)
+        res.status(200).send(updatedPost)
+    } catch (error) {
+        console.log(error);
+        res.status(401).send({ message: error.message })
 
-    res.json(updatedPost)
+    }
 }
 
