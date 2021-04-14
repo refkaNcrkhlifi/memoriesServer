@@ -39,6 +39,29 @@ export const updatePost = async (req, res) => {
 
     }
 }
+export const likePost = async (req, res) => {
+    const { id } = req.params
+    const options = {
+        upsert: true,
+        new: true,
+        setDefaultsOnInsert: true,
+        useFindAndModify: false,
+    };
+
+    if (!mongoose.Types.ObjectId.isValid(id)) return res.status(404).send("no post with that id")
+    try {
+        const { likeNumber } = await postMessage.findOne({ _id: id })
+        const update = {
+            likeNumber: likeNumber + 1
+        }
+        const updatedPost = await postMessage.findByIdAndUpdate(id, update, options)
+        res.status(200).send(updatedPost)
+    } catch (error) {
+        console.log(error);
+        res.status(401).send({ message: error.message })
+
+    }
+}
 export const deletePost = async (req, res) => {
     const { id } = req.params
 
