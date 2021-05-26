@@ -3,7 +3,8 @@ import cors from "cors"
 import dotenv from "dotenv"
 
 import connectDB from "./config/db.js"
-import router from "./routes/posts.js"
+import postsRouter from "./routes/posts.js"
+import userRouter from "./routes/user.js"
 
 dotenv.config({ path: './config/config.env' })
 
@@ -15,6 +16,8 @@ app.use(cors())
 
 connectDB()
 
-app.use('/posts', router)
+app.use('/posts', postsRouter)
+app.use('/user', userRouter)
+
 const prot = process.env.NODE_PORT || 3001
 app.listen(prot, () => console.log("lisning on port :", prot))
