@@ -5,7 +5,7 @@ import auth from "../middleware/auth.js"
 const router = express.Router()
 
 router.get("/", getPosts)
-router.post("/addPost", auth, addPost)
+router.post("/addPost",auth, addPost)
 router.post("/:id", auth, updatePost)
 router.delete("/:id", auth, deletePost)
 router.put("/:id", auth, likePost)

@@ -11,8 +11,9 @@ export const getPosts = async (req, res) => {
 }
 export const addPost = async (req, res) => {
     // const { title, message, creator, tags, likes } = req.body
+    const userId = req.user
     const post = req.body
-    const newPost = new postMessage(post)
+    const newPost = new postMessage({...post,creator:userId})
     try {
         await newPost.save()
         res.status(200).send(newPost)
@@ -51,18 +52,17 @@ export const likePost = async (req, res) => {
     if (!userId) return res.status(401).send('user unathantecated !')
     if (!mongoose.Types.ObjectId.isValid(id)) return res.status(404).send("no post with that id")
     try {
-        const { likes } = await postMessage.findOne({ _id: id })
-        const index = likes.findIndex(id => id === String(userId))
-
+        const  post= await postMessage.findOne({ _id: id })
+        const index = post.likes.findIndex(id => id === String(userId))
+       
         if (index === -1) {
-            likes.push(userId)
+            post.likes.push(userId)
         } else {
-            likes.filter(element => element !== String(userId))
+            post.likes= post.likes.filter(element => element !== String(userId))
+
         }
-        const update = {
-            likes
-        }
-        const updatedPost = await postMessage.findByIdAndUpdate(id, update, options)
+        
+        const updatedPost = await postMessage.findByIdAndUpdate(id, post, options)
         res.status(200).send(updatedPost)
     } catch (error) {
         console.log(error);
@@ -77,7 +77,6 @@ export const deletePost = async (req, res) => {
     if (!mongoose.Types.ObjectId.isValid(id)) return res.status(404).send("no post with that id")
     try {
         const deletedPost = await postMessage.deleteOne({ _id: id })
-        console.log("88", deletedPost);
         res.status(200).send(deletedPost)
     } catch (error) {
         console.log(error);
