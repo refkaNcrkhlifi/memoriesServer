@@ -10,7 +10,7 @@ export const getPosts = async (req, res) => {
     }
 }
 export const addPost = async (req, res) => {
-    // const { title, message, creator, tags, likeNumber } = req.body
+    // const { title, message, creator, tags, likes } = req.body
     const post = req.body
     const newPost = new postMessage(post)
     try {
@@ -41,18 +41,26 @@ export const updatePost = async (req, res) => {
 }
 export const likePost = async (req, res) => {
     const { id } = req.params
+    const userId = req.user
     const options = {
         upsert: true,
         new: true,
         setDefaultsOnInsert: true,
         useFindAndModify: false,
     };
-
+    if (!userId) return res.status(401).send('user unathantecated !')
     if (!mongoose.Types.ObjectId.isValid(id)) return res.status(404).send("no post with that id")
     try {
-        const { likeNumber } = await postMessage.findOne({ _id: id })
+        const { likes } = await postMessage.findOne({ _id: id })
+        const index = likes.findIndex(id => id === String(userId))
+
+        if (index === -1) {
+            likes.push(userId)
+        } else {
+            likes.filter(element => element !== String(userId))
+        }
         const update = {
-            likeNumber: likeNumber + 1
+            likes
         }
         const updatedPost = await postMessage.findByIdAndUpdate(id, update, options)
         res.status(200).send(updatedPost)
